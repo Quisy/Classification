@@ -31,8 +31,23 @@ namespace Classification.App.Utils
 
             Objects.Add(obj);
 
-            //if (ClassCounters[obj.ClassName]++ == 0)
-            //    ClassNames.Add(obj.ClassName);
+            if (ClassCounters.ContainsKey(obj.ClassName))
+            {
+                ClassCounters[obj.ClassName]++;
+            }
+            else
+            {
+                ClassCounters.Add(obj.ClassName, 1);
+                ClassNames.Add(obj.ClassName);
+            }
+
+            return true;
+        }
+
+        public bool RemoveObject(ObjectModel obj)
+        {
+            Objects.Remove(obj);
+            ClassCounters[obj.ClassName]--;
 
             return true;
         }

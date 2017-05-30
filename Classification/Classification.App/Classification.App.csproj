@@ -54,6 +54,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Models\ClassificationResult.cs" />
+    <Compile Include="Models\MethodResult.cs" />
+    <Compile Include="Utils\Classifier.cs" />
     <Compile Include="Utils\Database.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -24,6 +24,22 @@ namespace Classification.App
         public MainWindow()
         {
             InitializeComponent();
+
+            var dbTrain = new Database();
+            var dbTest = new Database();
+
+            dbTrain.Load(@"C:\Users\Mariusz\Desktop\Maple_Oak.txt");
+
+            for (int i = 0; i < dbTrain.Objects.Count; i = i+2)
+            {
+                dbTest.AddObject(dbTrain.Objects[i]);
+                dbTrain.RemoveObject(dbTrain.Objects[i]);
+            }
+
+            var classifier = new Classifier(dbTrain, dbTest);
+            classifier.ClassifyNearestNeighbour();
+            classifier.ClassifyKNearestNeighbour(10);
+
         }
     }
 }
