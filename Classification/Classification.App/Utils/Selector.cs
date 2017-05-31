@@ -17,32 +17,12 @@ namespace Classification.App.Utils
         }
 
 
-        public IList<int> FisherSFS(int k)
+        public IList<int> Fisher(int k)
         {
             Dictionary<string, float[]> classMeans = CountClassMeans();
-            Dictionary<string, float[,]> dispersionMatrixes = new Dictionary<string, float[,]>();
+            Dictionary<string, float[,]> dispersionMatrixes = GenerateDispersionMatrixes(classMeans);
             List<int> bestFeatures = new List<int>();
             int maxValueFeatureId = 0;
-
-            foreach (var className in _set.ClassNames)
-            {
-                var classObjects = _set.Objects.Where(o => o.ClassName.Equals(className)).ToList();
-
-                float[,] classMatrix = new float[_set.NoFeatures, classObjects.Count];
-
-                for (int i = 0; i < _set.NoFeatures; i++)
-                {
-                    for (int j = 0; j < classObjects.Count; j++)
-                    {
-                        classMatrix[i, j] = classObjects[j].Features[i];
-                    }
-                }
-
-                classMatrix = MatrixHelper.SubstractVectorFromMatrix(classMatrix, classMeans[className]);
-
-                var dispersionMatrix = MatrixHelper.MultiplyMatrix(classMatrix, MatrixHelper.Transpose(classMatrix));
-                dispersionMatrixes.Add(className, dispersionMatrix);
-            }
 
             Dictionary<int, float> fisherResults = new Dictionary<int, float>();
             float nominator = 0f, denominator = 0f;
@@ -54,6 +34,46 @@ namespace Classification.App.Utils
                 tempVector = tempVector == null ? mean.Value : VectorHelper.SubstractVectorFromVector(tempVector, mean.Value);
             }
 
+            foreach (var featureId in _set.FeaturesIDs)
+            {
+                nominator = VectorHelper.CountVectorLength(new float[] { tempVector[featureId] });
+
+                foreach (var dispersionMatrix in dispersionMatrixes)
+                {
+                    denominator += dispersionMatrix.Value[featureId, featureId];
+                }
+
+                float fisherValue = nominator / denominator;
+
+                fisherResults.Add(featureId, fisherValue);
+            }
+
+            for (int i = 0; i < k; i++)
+            {
+                maxValueFeatureId = fisherResults.Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
+                bestFeatures.Add(maxValueFeatureId);
+                fisherResults.Remove(maxValueFeatureId);
+            }
+
+            return bestFeatures;
+        }
+
+        public IList<int> FisherSFS(int k)
+        {
+            Dictionary<string, float[]> classMeans = CountClassMeans();
+            Dictionary<string, float[,]> dispersionMatrixes = GenerateDispersionMatrixes(classMeans);
+            List<int> bestFeatures = new List<int>();
+            int maxValueFeatureId = 0;
+
+            Dictionary<int, float> fisherResults = new Dictionary<int, float>();
+            float nominator = 0f, denominator = 0f;
+
+            float[] tempVector = null;
+
+            foreach (var mean in classMeans)
+            {
+                tempVector = tempVector == null ? mean.Value : VectorHelper.SubstractVectorFromVector(tempVector, mean.Value);
+            }
 
             foreach (var featureId in _set.FeaturesIDs)
             {
@@ -157,7 +177,32 @@ namespace Classification.App.Utils
 
             return classMeans;
         }
+
+        private Dictionary<string, float[,]> GenerateDispersionMatrixes(Dictionary<string, float[]> classMeans)
+        {
+            Dictionary<string, float[,]> dispersionMatrixes = new Dictionary<string,float[,]>();
+
+            foreach (var className in _set.ClassNames)
+            {
+                var classObjects = _set.Objects.Where(o => o.ClassName.Equals(className)).ToList();
+
+                float[,] classMatrix = new float[_set.NoFeatures, classObjects.Count];
+
+                for (int i = 0; i < _set.NoFeatures; i++)
+                {
+                    for (int j = 0; j < classObjects.Count; j++)
+                    {
+                        classMatrix[i, j] = classObjects[j].Features[i];
+                    }
+                }
+
+                classMatrix = MatrixHelper.SubstractVectorFromMatrix(classMatrix, classMeans[className]);
+
+                var dispersionMatrix = MatrixHelper.MultiplyMatrix(classMatrix, MatrixHelper.Transpose(classMatrix));
+                dispersionMatrixes.Add(className, dispersionMatrix);
+            }
+
+            return dispersionMatrixes;
+        }
     }
-
-
 }

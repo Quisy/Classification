@@ -30,6 +30,18 @@ namespace Classification.App.Helpers
             result = (float)Math.Sqrt(result);
             return result;
         }
+
+        public static float CountDistanceBetweenVectors(float[] vector1, float[] vector2)
+        {
+            float tempValue = 0f;
+            for (int i = 0; i < vector1.Length; i++)
+            {
+                tempValue += (float)Math.Pow(vector1[i] - vector2[i], 2);
+            }
+
+            float result = (float)Math.Sqrt(tempValue);
+            return result;
+        }
     }
 
 }

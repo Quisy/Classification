@@ -17,8 +17,7 @@ namespace Classification.App
         {
             InitializeComponent();
 
-            
-
+           
         }
     }
 }
