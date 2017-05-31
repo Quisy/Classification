@@ -8,6 +8,8 @@ namespace Classification.App.Models
 {
     public class MethodResult
     {
+        public string MethodName { get; set; }
+
         public IList<ClassificationResult> ClassificationResults { get; set; }
 
         public float Effectiveness

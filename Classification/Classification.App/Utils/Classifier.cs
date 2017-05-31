@@ -12,6 +12,8 @@ namespace Classification.App.Utils
         private readonly Database _trainingSet;
         private readonly Database _testSet;
 
+        public IList<MethodResult> Results { get; private set; }
+
         public MethodResult NearestNeighbourResult { get; set; }
         public MethodResult KNearestNeighbourResult { get; set; }
         public MethodResult NearestMeanResult { get; set; }
@@ -22,10 +24,18 @@ namespace Classification.App.Utils
             _trainingSet = trainingSet;
             _testSet = testSet;
 
-            NearestNeighbourResult = new MethodResult();
-            KNearestNeighbourResult = new MethodResult();
-            NearestMeanResult = new MethodResult();
-            KNearestMeanResult = new MethodResult();
+            NearestNeighbourResult = new MethodResult{MethodName = "NN"};
+            KNearestNeighbourResult = new MethodResult { MethodName = "kNN" };
+            NearestMeanResult = new MethodResult { MethodName = "NM" };
+            KNearestMeanResult = new MethodResult { MethodName = "kNM" };
+
+            Results = new List<MethodResult>
+            {
+                NearestNeighbourResult,
+                KNearestNeighbourResult,
+                NearestMeanResult,
+                KNearestMeanResult
+            };
         }
 
         public void ClassifyNearestNeighbour()
@@ -148,7 +158,7 @@ namespace Classification.App.Utils
 
             for (int i = 0; i < k; i++)
             {
-                var classObjects = _trainingSet.Objects.Where(o => o.ClassName.Equals(_trainingSet.ClassNames[0])).ToList();
+                var classObjects = _trainingSet.Objects.Where(o => o.ClassName.Equals(_trainingSet.ClassNames[1])).ToList();
                 var subClassMean = classObjects[i].Features.ToArray();
                 subClassesMeans.Add(i, subClassMean);
                 objectsInSubClasses.Add(i, new List<int>());
@@ -219,13 +229,13 @@ namespace Classification.App.Utils
 
             Dictionary<string, float[]> classesMeans = new Dictionary<string, float[]>();
 
-            foreach (var className in _trainingSet.ClassNames.Skip(1).ToList())
+            foreach (var className in _trainingSet.ClassNames.Take(1).ToList())
             {
                 var classObjects = _trainingSet.Objects.Where(o => o.ClassName.Equals(className)).ToList();
                 classesMeans.Add(className, CountMeanOfObjects(classObjects, _trainingSet.NoFeatures));
             }
 
-            var subClassesParentName = _trainingSet.ClassNames[0];
+            var subClassesParentName = _trainingSet.ClassNames[1];
 
             foreach (var subClassMean in subClassesMeans)
             {
@@ -253,7 +263,7 @@ namespace Classification.App.Utils
                     if (finalValue == 0f || tempValue < finalValue)
                     {
                         finalValue = tempValue;
-                        result.AssignedClassName = classMean.Key.StartsWith(_trainingSet.ClassNames[0]) ? _trainingSet.ClassNames[0] : classMean.Key;
+                        result.AssignedClassName = classMean.Key.StartsWith(_trainingSet.ClassNames[1]) ? _trainingSet.ClassNames[1] : classMean.Key;
                     }
                 }
 
