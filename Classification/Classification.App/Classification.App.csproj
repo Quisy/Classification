@@ -54,10 +54,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Helpers\MatrixHelper.cs" />
+    <Compile Include="Helpers\VectorHelper.cs" />
     <Compile Include="Models\ClassificationResult.cs" />
     <Compile Include="Models\MethodResult.cs" />
     <Compile Include="Utils\Classifier.cs" />
     <Compile Include="Utils\Database.cs" />
+    <Compile Include="Utils\Selector.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -98,8 +101,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Helpers\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
