@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using Classification.App.Helpers;
 using Classification.App.Models;
@@ -24,7 +23,7 @@ namespace Classification.App.Utils
             _trainingSet = trainingSet;
             _testSet = testSet;
 
-            NearestNeighbourResult = new MethodResult{MethodName = "NN"};
+            NearestNeighbourResult = new MethodResult { MethodName = "NN" };
             KNearestNeighbourResult = new MethodResult { MethodName = "kNN" };
             NearestMeanResult = new MethodResult { MethodName = "NM" };
             KNearestMeanResult = new MethodResult { MethodName = "kNM" };
@@ -42,12 +41,14 @@ namespace Classification.App.Utils
         {
             foreach (var testObject in _testSet.Objects)
             {
-                float tempValue = 0f;
                 float finalValue = 0f;
+                bool first = true;
                 var result = new ClassificationResult { Object = testObject };
 
                 foreach (var trainingObject in _trainingSet.Objects)
                 {
+                    float tempValue = 0f;
+
                     for (int i = 0; i < testObject.FeaturesNumber; i++)
                     {
                         tempValue += (float)Math.Pow(testObject.Features[i] - trainingObject.Features[i], 2);
@@ -55,10 +56,11 @@ namespace Classification.App.Utils
 
                     tempValue = (float)Math.Sqrt(tempValue);
 
-                    if (finalValue == 0f || tempValue < finalValue)
+                    if (first || tempValue < finalValue)
                     {
                         finalValue = tempValue;
                         result.AssignedClassName = trainingObject.ClassName;
+                        first = false;
                     }
                 }
 
@@ -68,16 +70,11 @@ namespace Classification.App.Utils
 
         public void ClassifyKNearestNeighbour(uint k)
         {
-            Dictionary<string, int> classCounter = new Dictionary<string, int>();
-
-            foreach (string className in _trainingSet.ClassNames)
-            {
-                classCounter.Add(className, 0);
-            }
+            Dictionary<string, int> classCounter = _trainingSet.ClassNames.ToDictionary(className => className, className => 0);
 
             foreach (var testObject in _testSet.Objects)
             {
-                float tempValue = 0f;
+
                 IList<float> values = new List<float>();
                 var result = new ClassificationResult { Object = testObject };
 
@@ -88,6 +85,8 @@ namespace Classification.App.Utils
 
                 foreach (var trainingObject in _trainingSet.Objects)
                 {
+                    float tempValue = 0f;
+
                     for (int i = 0; i < testObject.FeaturesNumber; i++)
                     {
                         tempValue += (float)Math.Pow(testObject.Features[i] - trainingObject.Features[i], 2);
@@ -152,102 +151,96 @@ namespace Classification.App.Utils
 
         public void ClassifyKNearestMean(int k)
         {
-            Dictionary<int, float[]> subClassesMeans = new Dictionary<int, float[]>();
-            Dictionary<int, List<int>> objectsInSubClasses = new Dictionary<int, List<int>>();
-            bool isOk = true;
+            Dictionary<string, float[]> subClassesMeans = new Dictionary<string, float[]>();
 
-            for (int i = 0; i < k; i++)
+            foreach (var className in _trainingSet.ClassNames)
             {
-                var classObjects = _trainingSet.Objects.Where(o => o.ClassName.Equals(_trainingSet.ClassNames[1])).ToList();
-                var subClassMean = classObjects[i].Features.ToArray();
-                subClassesMeans.Add(i, subClassMean);
-                objectsInSubClasses.Add(i, new List<int>());
-            }
+                Dictionary<string, List<int>> objectsInSubClasses = new Dictionary<string, List<int>>();
+                bool isOk = true;
 
-            do
-            {
-                var tempObjectsInSubClasses = new Dictionary<int, List<int>>();
-
-                foreach (var subClassMean in subClassesMeans)
+                for (int i = 0; i < k; i++)
                 {
-                    tempObjectsInSubClasses.Add(subClassMean.Key, new List<int>());
+                    var classObjects =
+                        _trainingSet.Objects.Where(o => o.ClassName.Equals(className)).ToList();
+                    var subClassMean = classObjects[i].Features.ToArray();
+                    subClassesMeans.Add($"{className}.{i}", subClassMean);
+                    objectsInSubClasses.Add($"{className}.{i}", new List<int>());
                 }
 
-                foreach (var trainingObject in _trainingSet.Objects)
+                do
                 {
-                    int tempClassKey = 0;
-                    float finalValue = 0f;
-                    bool first = true;
+                    var tempObjectsInSubClasses = subClassesMeans.Where(c=>c.Key.StartsWith(className)).ToDictionary(subClassMean => subClassMean.Key,
+                        subClassMean => new List<int>());
 
-                    foreach (var subClassMean in subClassesMeans)
+                    foreach (
+                        var trainingObject in
+                            _trainingSet.Objects.Where(o => o.ClassName.Equals(className)))
                     {
-                        float distance =
-                            VectorHelper.CountDistanceBetweenVectors(trainingObject.Features.ToArray(), subClassMean.Value);
+                        string tempClassKey = "";
+                        float finalValue = 0f;
+                        bool first = true;
 
-                        if (first)
+                        foreach (var subClassMean in subClassesMeans.Where(c => c.Key.StartsWith(className)).ToList())
                         {
-                            tempClassKey = subClassMean.Key;
-                            finalValue = distance;
-                            first = false;
+
+
+                            float distance =
+                                VectorHelper.CountDistanceBetweenVectors(trainingObject.Features.ToArray(),
+                                    subClassMean.Value);
+
+                            if (first)
+                            {
+                                tempClassKey = subClassMean.Key;
+                                finalValue = distance;
+                                first = false;
+                            }
+                            else if (distance < finalValue)
+                            {
+                                finalValue = distance;
+                                tempClassKey = subClassMean.Key;
+                            }
+
                         }
-                        else if (distance < finalValue)
+
+                        tempObjectsInSubClasses[tempClassKey].Add(_trainingSet.Objects.IndexOf(trainingObject));
+                    }
+
+                    foreach (var obj in tempObjectsInSubClasses)
+                    {
+                        if (!obj.Value.SequenceEqual(objectsInSubClasses[obj.Key]))
                         {
-                            finalValue = distance;
-                            tempClassKey = subClassMean.Key;
+                            isOk = false;
+                            objectsInSubClasses = tempObjectsInSubClasses;
+                            break;
                         }
 
+                        isOk = true;
                     }
 
-                    tempObjectsInSubClasses[tempClassKey].Add(_trainingSet.Objects.IndexOf(trainingObject));
-                }
-
-                foreach (var obj in tempObjectsInSubClasses)
-                {
-                    if (!obj.Value.SequenceEqual(objectsInSubClasses[obj.Key]))
+                    if (!isOk)
                     {
-                        isOk = false;
-                        objectsInSubClasses = tempObjectsInSubClasses;
-                        break;
+                        foreach (var obj in objectsInSubClasses)
+                        {
+                            var classObjects =
+                                _trainingSet.Objects.Where(o => obj.Value.Contains(_trainingSet.Objects.IndexOf(o)))
+                                    .ToList();
+
+                            var mean = CountMeanOfObjects(classObjects, _trainingSet.NoFeatures);
+
+                            subClassesMeans[obj.Key] = mean;
+                        }
                     }
 
-                    isOk = true;
-                }
-
-                if (!isOk)
-                {
-                    foreach (var obj in objectsInSubClasses)
-                    {
-                        var classObjects = _trainingSet.Objects.Where(o => obj.Value.Contains(_trainingSet.Objects.IndexOf(o))).ToList();
-
-                        var mean = CountMeanOfObjects(classObjects, _trainingSet.NoFeatures);
-
-                        subClassesMeans[obj.Key] = mean;
-                    }
-                }
-
-            } while (!isOk);
-
-            Dictionary<string, float[]> classesMeans = new Dictionary<string, float[]>();
-
-            foreach (var className in _trainingSet.ClassNames.Take(1).ToList())
-            {
-                var classObjects = _trainingSet.Objects.Where(o => o.ClassName.Equals(className)).ToList();
-                classesMeans.Add(className, CountMeanOfObjects(classObjects, _trainingSet.NoFeatures));
+                } while (!isOk);
             }
 
-            var subClassesParentName = _trainingSet.ClassNames[1];
-
-            foreach (var subClassMean in subClassesMeans)
-            {
-                classesMeans.Add($"{subClassesParentName}.{subClassMean.Key}", subClassMean.Value);
-            }
 
             foreach (var testObject in _testSet.Objects)
             {
                 var result = new ClassificationResult { Object = testObject };
                 float finalValue = 0f;
 
-                foreach (var classMean in classesMeans)
+                foreach (var classMean in subClassesMeans)
                 {
                     float tempValue = 0f;
 
@@ -263,7 +256,7 @@ namespace Classification.App.Utils
                     if (finalValue == 0f || tempValue < finalValue)
                     {
                         finalValue = tempValue;
-                        result.AssignedClassName = classMean.Key.StartsWith(_trainingSet.ClassNames[1]) ? _trainingSet.ClassNames[1] : classMean.Key;
+                        result.AssignedClassName = classMean.Key.Substring(0,classMean.Key.IndexOf('.'));
                     }
                 }
 
@@ -294,12 +287,17 @@ namespace Classification.App.Utils
 
                 var classObjects = _trainingSet.Objects.Where(o => o.ClassName.Equals(className)).ToList();
 
-                for (int i = 0; i < _trainingSet.NoFeatures; i++)
+                if (classObjects.Count > 0)
                 {
-                    mean[i] = classObjects.Select(o => o.Features[i]).Average();
+                    for (int i = 0; i < _trainingSet.NoFeatures; i++)
+                    {
+                        mean[i] = classObjects.Select(o => o.Features[i]).Average();
+                    }
+
+                    classMeans.Add(className, mean);
                 }
 
-                classMeans.Add(className, mean);
+
             }
 
             return classMeans;

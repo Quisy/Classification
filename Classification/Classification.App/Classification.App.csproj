@@ -57,6 +57,7 @@
     <Compile Include="Helpers\MatrixHelper.cs" />
     <Compile Include="Helpers\VectorHelper.cs" />
     <Compile Include="Models\ClassificationResult.cs" />
+    <Compile Include="Models\MethodResult2.cs" />
     <Compile Include="Models\MethodResult.cs" />
     <Compile Include="Utils\Classifier.cs" />
     <Compile Include="Utils\Database.cs" />

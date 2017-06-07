@@ -8,7 +8,7 @@
         Title="MainWindow" Height="400" Width="600">
     <Grid>
         <Button x:Name="ButtonLoadFile" Content="Load File" HorizontalAlignment="Left" Margin="36,32,0,0" VerticalAlignment="Top" Width="75" Click="ButtonLoadFile_Click"/>
-        <DataGrid x:Name="DataGridClassification" HorizontalAlignment="Left" Height="180" Margin="267,167,0,0" VerticalAlignment="Top" Width="315" AutoGenerateColumns="false">
+        <DataGrid x:Name="DataGridClassification" HorizontalAlignment="Left" Height="180" Margin="410,167,0,0" VerticalAlignment="Top" Width="172" AutoGenerateColumns="false">
             <DataGrid.Columns>
 
                 <DataGridTextColumn Header="MethodName" Binding="{Binding MethodName}" />
@@ -22,13 +22,24 @@
         <Label x:Name="label" Content="Features to select&#xD;&#xA;" HorizontalAlignment="Left" Margin="36,152,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.26,0.726" Height="27"/>
         <ListBox x:Name="ListBoxResultFisher" HorizontalAlignment="Left" Height="150" Margin="36,209,0,0" VerticalAlignment="Top" Width="75"/>
         <ListBox x:Name="ListBoxResultSFS" HorizontalAlignment="Left" Height="150" Margin="136,209,0,0" VerticalAlignment="Top" Width="75"/>
-        <Label x:Name="label_Copy" Content="K neighbours&#xA;" HorizontalAlignment="Left" Margin="348,62,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.26,0.726" Height="24"/>
-        <Label x:Name="label_Copy1" Content="K means" HorizontalAlignment="Left" Margin="373,91,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.26,0.726" Height="24"/>
-        <TextBox x:Name="TextBoxNeighbours" HorizontalAlignment="Left" Height="23" Margin="447,66,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="61" RenderTransformOrigin="0.345,-0.468"/>
-        <TextBox x:Name="TextBoxMeans" HorizontalAlignment="Left" Height="23" Margin="447,95,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="61" RenderTransformOrigin="0.345,-0.468"/>
-        <Button x:Name="ButtonClassify" Content="Classify" HorizontalAlignment="Left" Margin="384,123,0,0" VerticalAlignment="Top" Width="124" Click="ButtonClassify_Click"/>
-        <Label x:Name="label_Copy2" Content="Test objects (%)" HorizontalAlignment="Left" Margin="336,37,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.26,0.726" Height="24"/>
-        <TextBox x:Name="TextBoxTestObjects" HorizontalAlignment="Left" Height="23" Margin="447,38,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="61" RenderTransformOrigin="0.345,-0.468"/>
+        <Label x:Name="label_Copy" Content="K neighbours&#xA;" HorizontalAlignment="Left" Margin="325,14,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.26,0.726" Height="24"/>
+        <Label x:Name="label_Copy1" Content="K means" HorizontalAlignment="Left" Margin="337,43,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.26,0.726" Height="24"/>
+        <TextBox x:Name="TextBoxNeighbours" HorizontalAlignment="Left" Height="23" Margin="410,15,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="61" RenderTransformOrigin="0.345,-0.468"/>
+        <TextBox x:Name="TextBoxMeans" HorizontalAlignment="Left" Height="23" Margin="410,47,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="61" RenderTransformOrigin="0.345,-0.468"/>
+        <Button x:Name="ButtonClassify" Content="Classify" HorizontalAlignment="Left" Margin="458,123,0,0" VerticalAlignment="Top" Width="124" Click="ButtonClassify_Click"/>
+        <Label x:Name="label_Copy2" Content="Test objects (%)" HorizontalAlignment="Left" Margin="439,90,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.26,0.726" Height="24"/>
+        <TextBox x:Name="TextBoxTestObjects" HorizontalAlignment="Left" Height="23" Margin="530,94,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="61" RenderTransformOrigin="0.345,-0.468"/>
+        <Label x:Name="label_Copy3" Content="Parts" HorizontalAlignment="Left" Margin="294,90,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.26,0.726" Height="24"/>
+        <Button x:Name="ButtonClassify_Copy" Content="Classify" HorizontalAlignment="Left" Margin="267,127,0,0" VerticalAlignment="Top" Width="124" Click="ButtonClassify2_Click"/>
+        <TextBox x:Name="TextBoxParts" HorizontalAlignment="Left" Height="23" Margin="335,94,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="30" RenderTransformOrigin="0.345,-0.468"/>
+        <DataGrid x:Name="DataGridClassification2" HorizontalAlignment="Left" Height="180" Margin="233,167,0,0" VerticalAlignment="Top" Width="172" AutoGenerateColumns="false">
+            <DataGrid.Columns>
+
+                <DataGridTextColumn Header="MethodName" Binding="{Binding MethodName}" />
+                <DataGridTextColumn Header="Effectiveness" Binding="{Binding Effectiveness}" />
+
+            </DataGrid.Columns>
+        </DataGrid>
 
     </Grid>
 </Window>

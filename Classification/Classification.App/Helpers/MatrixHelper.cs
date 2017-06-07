@@ -96,9 +96,9 @@ namespace Classification.App.Helpers
                         a[j, k] = a[j, k] - det * a[i, k]; // HERE
                 }
             }
-            //det = 1;
-            //for (i = 0; i < n; i++)
-            //    det = det * a[i, i];
+            det = 1;
+            for (i = 0; i < n; i++)
+                det = det * a[i, i];
             return det;
         }
     }
